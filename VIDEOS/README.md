@@ -1,3 +1,3 @@
-Add Security Footage Files here in the form of:
+Add security footage Files here in the form of:
 
 `cam_X.avi`
