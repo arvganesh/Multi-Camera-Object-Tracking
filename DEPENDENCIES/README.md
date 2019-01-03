@@ -6,7 +6,7 @@ In this folder, clone into:
 
 Rename "ssd.pytorch" -> "SSD" with
 
-'''mv ssd.pytorch SSD'''
+```mv ssd.pytorch SSD```
 
 Once finished, the directory should look like: 
 ```
