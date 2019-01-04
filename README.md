@@ -6,6 +6,7 @@ Track an object across a non-overlapping CCTV Network.
 
 ## Dependencies:
 + Directions in /DEPENDENCIES folder
-+ ```opencv``` and ```opencv_contrib```
-+ ```numpy```
-+ 
++ opencv and opencv_contrib
++ numpy
++ PyTorch
+
