@@ -9,4 +9,5 @@ Track an object across a non-overlapping CCTV Network.
 + opencv and opencv_contrib
 + numpy
 + PyTorch
++ matplotlib
 
