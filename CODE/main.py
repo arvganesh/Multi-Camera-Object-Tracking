@@ -1,16 +1,17 @@
 import time
 import sys
 import cv2
-
+from config import DIM_X, DIM_Y, DIST_THRESHOLD, REID_NUM_SKIP_FRAMES, MAX_REID_TIME, TRACKFILE_PATH
 from collections import namedtuple
 
 Camera_info = namedtuple('Camera_info', ['frame_rate', 'start_frame', 'connections', 'file_name'])
 
+print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the right values")
 
 def check_bboxes(bboxes,frame):
 	bboxes_ppl = init_det(frame=frame)
 	for bbox in bboxes_ppl:
-		bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (DIM_X,DIM_Y))# ** add size of semantic det to config
+		bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (DIM_X,DIM_Y))
 		attrs = semantic_attribute_det(bbox_img)
 		if (attrs == subject["attr_id"]):
 			dist = deep_reid(bbox_img)
@@ -81,20 +82,19 @@ cur_cam_id = start_camera_id
 
 ok,frame = caps[start_camera_index].read()
 
-bbox = (348, 80, 53, 124)
-#bbox  = selectROI(frame,False) **
+#bbox = (348, 80, 53, 124)
+bbox  = selectROI(frame,False)
 
 subject = {}
-bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (DIM_X,DIM_Y))# ** add size of semantic det to config
+bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (DIM_X,DIM_Y))
 subject["img"] = bbox_img
 subject["bbox"] = bbox
 subject["attr_id"] = semantic_attribute_det(bbox_img)
 
 while(cur_time < end_time):
 	print("Now using camera"+str(cur_cam_id))
-
-	#modify track_logger to match this format **
-	frames_elapsed, error = track_logger.track(cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
+	
+	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
 	cur_time += int(frames_elapsed/camera_video_files[cur_cam_indx].frame_rate)
 	surrounding_cams = camera_video_files[cur_cam_indx].connections
 	if(len(surrounding_cams) == 0):
@@ -103,10 +103,10 @@ while(cur_time < end_time):
 	begin_search_time = time.time()
 	found = False
 	frame_itr = 0
-	frame_itr_interval = 5 #incorpoarte config **
+	frame_itr_interval = REID_NUM_SKIP_FRAMES
 	print("Calculating",end="",flush=True)
 	while(not found):
-		if(time.time()-begin_search_time > MAX_REID_TIME): #** add MAX_reidtime to config
+		if(time.time()-begin_search_time > MAX_REID_TIME):
 			print("Could not RE-ID subject within "+str(MAX_REID_TIME)+" seconds. Ending Program.  MAIN")
 			cur_time = end_time+1 #break outer while
 			break
@@ -141,7 +141,7 @@ invalid_input = True
 while(invalid_input):
 	inpt = input("Would you like to generate the video? [y/n] ")
 	if(inpt == "y"):
-		splicer.splicer(camera_video_files,TRACKFILE_PATH,data_inc) #add TRACKFILE_PATH to config **
+		splicer.splicer(camera_video_files,TRACKFILE_PATH,data_inc)
 		print("Done generating video. Closing Program.  MAIN")
 		invalid_input = False
 	elif(inpt == "n")

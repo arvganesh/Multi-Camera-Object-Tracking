@@ -1,5 +1,5 @@
 import cv2 
-from config import WORK_DIR
+from config import WORK_DIR, MAX_TRACK_FRAMES, MAX_TRACK_ERROR_FRAMES
 from cv2 import selectROI
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,27 +8,14 @@ import sys
 import math
 import time
 
-def track(video,cam,start_frame,bbox,data_inc,frame_rate):
-    MAX_FRAME = 150
-    # print("args: ",video,cam,start_frame,bbox,data_inc,frame_rate)
+#frames_elapsed, error = track_logger.track(cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
+def track(cam_id, cap, bbox, data_inc):
     f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
     frm_cnt = 0
-    print("Progress Cam_" + str(cam) + ": ", end="", flush=True)
+    print("Progress Cam_" + str(cam_id) + ": ", end="", flush=True)
     #cam, start frame, bbox width, bbox height
-    f.write("\n"+"!("+str(cam)+","+str(start_frame)+","+str(bbox[2])+","+str(bbox[3])+")\n")
+    f.write("\n"+"!("+str(cam_id)+","+str(cv2.getCaptureProperty(cap, 1))+","+str(bbox[2])+","+str(bbox[3])+")\n")
     f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
-    cap = cv2.VideoCapture(video)
-    cap.set(cv2.CAP_PROP_FPS, frame_rate)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-    if (not cap.isOpened()):
-        print("Error opening video from Track Logger.")
-        sys.exit()
-    ok, frame = cap.read()
-    # print("type: "+str(type(frame)))
-    frm_cnt += 1
-    if not ok:
-        print("Cannot read video file")
-        sys.exit()
 
     tracker_type = "CSRT"
     if tracker_type == 'BOOSTING':
@@ -59,7 +46,6 @@ def track(video,cam,start_frame,bbox,data_inc,frame_rate):
     CSRT -> yeh
     """
     ok = tracker.init(frame,tuple(bbox))
-
     fail_detect_itrs = 0
     cycle = 0
     while True:
@@ -68,42 +54,37 @@ def track(video,cam,start_frame,bbox,data_inc,frame_rate):
         frm_cnt += 1
         if not ok:
             f.close()
-            # print ("Frame count", frm_cnt)
-            numofthing = math.ceil((MAX_FRAME - frm_cnt) / data_inc)
+            #finish out progress bar
+            numofthing = math.ceil((MAX_TRACK_FRAMES - frm_cnt) / data_inc)
             print("#" * numofthing, end="", flush=True)
             print("")
-            return frm_cnt,"BAD_FRAME" # goes to next cams
+            return frm_cnt # goes to next cams
 
         # Update tracker
         ok, bbox = tracker.update(frame)
-        #if not ok: print("not found")
-
         
+        #only record at data_inc
         if(cycle==data_inc-1):
             cycle=0
+            #record bbox pos
             if ok:
                 f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
             else:
                 f.write("-e-\n")
+            #increment progress bar
             print("#", end="", flush=True)
         else:
             cycle+=1
             if(not ok):
                 fail_detect_itrs+=1
-                if(fail_detect_itrs>5):
+                if(fail_detect_itrs>MAX_TRACK_ERROR_FRAMES):
                     f.close()
                     print("")
-                    return frm_cnt,"LOST_SUBJECT"
-        if(frm_cnt > MAX_FRAME):
+                    return frm_cnt
+        if(frm_cnt > MAX_TRACK_FRAMES):
             f.close()
             print("")
-            return frm_cnt, "TOO_MANY_FRAMES"
-        # cv2.waitKey(int(1000/(frame_rate/2)))
-        # # Exit if ESC pressed
-        # k = cv2.waitKey(1) & 0xff
-        # if k == 27 :
-        #     f.close()
-        #     return frm_cnt, "WAIT_KEY"
+            return frm_cnt
 
 #uncomment to use as stand-alone file
 # start_frame = 9*2
