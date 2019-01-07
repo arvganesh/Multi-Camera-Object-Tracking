@@ -1,6 +1,7 @@
 # Don't track these folders:
 VIDEOS/
 DEPENDENCIES/
+METADATA/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
