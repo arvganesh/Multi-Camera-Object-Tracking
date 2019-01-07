@@ -2,7 +2,7 @@ import time
 import sys
 import cv2
 from cv2 import selectROI
-from config import DIM_X, DIM_Y, DIST_THRESHOLD, REID_NUM_SKIP_FRAMES, MAX_REID_TIME, TRACKFILE_PATH
+from config import SEM_DIM_X, SEM_DIM_Y, REID_DIM_X, REID_DIM_Y, DIST_THRESHOLD, REID_NUM_SKIP_FRAMES, MAX_REID_TIME, TRACKFILE_PATH
 from collections import namedtuple
 
 Camera_info = namedtuple('Camera_info', ['frame_rate', 'start_frame', 'connections', 'file_name'])
@@ -12,15 +12,16 @@ print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the rig
 def check_bboxes(bboxes,frame):
 	bboxes_ppl = init_det(frame=frame)
 	for bbox in bboxes_ppl:
-		bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (DIM_X,DIM_Y))
+		bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (SEM_DIM_X,SEM_DIM_Y))
 		attrs = semantic_attribute_det(bbox_img)
 		if (attrs == subject["attr_id"]):
+			bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
 			dist = deep_reid(bbox_img)
-			if(dist < DIST_THRESHOLD): # add Dist threshold to config)
+			if(dist < DIST_THRESHOLD):
 				return bbox
 	return None
 				
-#clear trackfile
+#clear trackfile **chnage to hdf5 if necisary
 f = open("trackfile.txt", "w")
 f.close()
 
@@ -87,7 +88,9 @@ ok,frame = caps[start_camera_index].read()
 bbox  = selectROI(frame,False)
 
 subject = {}
-bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (DIM_X,DIM_Y))
+
+bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
+
 print("bbox_img type",type(bbox_img))
 subject["img"] = bbox_img
 subject["bbox"] = bbox
