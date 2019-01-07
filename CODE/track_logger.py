@@ -1,5 +1,5 @@
 import cv2 
-from config import WORK_DIR, MAX_TRACK_FRAMES, MAX_TRACK_ERROR_FRAMES
+from config import WORK_DIR, MAX_TRACK_FRAMES, MAX_TRACK_ERROR_FRAMES, VIDEO_PATH
 from cv2 import selectROI
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,13 +28,15 @@ with h5py.File('PreprocessedData.h5', 'w') as hf:
 
 #frames_elapsed, error = track_logger.track(cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
 def track(cam_id, cap, bbox, data_inc):
-    f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
-    # track_info = []
+    # f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
+    track_info = []
     frm_cnt = 0
     print("Progress Cam_" + str(cam_id) + ": ", end="", flush=True)
     #cam, start frame, bbox width, bbox height
-    f.write("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
-    f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
+    # f.write("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
+    # f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
+    track_info.append("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
+    track_info.append("["+str(int(bbox[0]))+","+str(int(bbox[1]))+"]")
 
     tracker_type = "CSRT"
     if tracker_type == 'BOOSTING':
@@ -73,7 +75,7 @@ def track(cam_id, cap, bbox, data_inc):
         ok, frame = cap.read()
         frm_cnt += 1
         if not ok:
-            f.close()
+            write_to_trackfile(track_info)
             #finish out progress bar
             numofthing = math.ceil((MAX_TRACK_FRAMES - frm_cnt) / data_inc)
             print("#" * numofthing, end="", flush=True)
@@ -91,38 +93,48 @@ def track(cam_id, cap, bbox, data_inc):
             cycle=0
             #record bbox pos
             if ok:
-                # track_info.append([int(bbox[0]),int(bbox[1])])
-                f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
+                track_info.append([int(bbox[0]),int(bbox[1])])
+                # f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
             else:
-                # track_info.appnd([-1,-1])
-                f.write("-e-\n")
+                track_info.append([-1,-1])
+                # f.write("-e-\n")
             #increment progress bar
             print("#", end="", flush=True)
         else:
             cycle+=1
             if(not ok):
                 fail_detect_itrs+=1
-                if(fail_detect_itrs>MAX_TRACK_ERROR_FRAMES):
-                    f.close()
+                if(fail_detect_itrs > MAX_TRACK_ERROR_FRAMES):
+                    write_to_trackfile(track_info)
                     print("")
                     return frm_cnt
         if(frm_cnt > MAX_TRACK_FRAMES):
-            f.close()
+            write_to_trackfile(track_info)
             print("")
             return frm_cnt
+        
 
+
+def write_to_trackfile(track_info):
+    with open(WORK_DIR + "/METADATA/" + "trackfile.txt", "a+") as f:
+        for item in track_info:
+            f.write(str(item) + "\n")
+            # print(str(item) + "\n")
+        f.close()
+    # sys.exit()
+    
 #uncomment to use as stand-alone file
-# start_frame = 9*2
-# vid = "cam_30.avi"
+# start_frame = 8*3
+# vid = VIDEO_PATH + "/cam_8.avi"
 # cap = cv2.VideoCapture(vid)
-# cap.set(cv2.CAP_PROP_FPS, 9)
+# cap.set(cv2.CAP_PROP_FPS, 8)
 # cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 # ok, frame = cap.read()
 # bbox = selectROI(frame)
-# track("cam_30.avi",3,start_frame,bbox,3,9)
+# track(0,cap,bbox,2)
 
 
-
+# cam_id, cap, bbox, data_inc
 
 """
 What we know

@@ -4,13 +4,14 @@ import cv2
 from cv2 import selectROI
 from config import *
 from collections import namedtuple
-from evaluate_cams_3 import deep_reid
-import track_logger_3 as track_logger
+from deep_reid import deep_reid
+import track_logger as track_logger
 from initial_detect import init_det
+import splicer
 
 Camera_info = namedtuple('Camera_info', ['frame_rate', 'start_frame', 'connections', 'file_name'])
 
-print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the right values")
+# print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the right values")
 
 def check_bboxes(frame):
 	global subject
@@ -21,9 +22,19 @@ def check_bboxes(frame):
 		# attrs = semantic_attribute_det(bbox_img)
 		# if (attrs == subject["attr_id"]):
 		# 	#bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
+
+		# while True:
+		# 	cv2.imshow("image", bbox_img_org)
+		# 	cv2.imshow("img2", subject["img"])
+		# 	k = cv2.waitKey(1) & 0xff
+		# 	if k == 27:
+		# 		cv2.destroyAllWindows()
+		# 		break
+		# 		# sys.exit()
 		dist = deep_reid(subject["img"], bbox_img_org)
-		print ("Distmat", dist)
+		# print ("Distmat", dist)
 		if(dist < DIST_THRESHOLD):
+			# print ("bbox",bbox)
 			return bbox
 	return None
 				
@@ -38,17 +49,17 @@ st = time.time()
 # data_inc = int(input("Data increment: "))
 # start_camera_id = int(input("Start Camera ID: "))
 
-start_time = 3
-end_time = 40
+start_time = 24
+end_time = 70
 data_inc = 2
 start_camera_id = 0
 
 
 #set time diff to check against
-end_time -= start_time
-if(end_time <= 0):
-	print("End time is before Start time. MAIN")
-	sys.exit()
+#end_time -= start_time
+# if(end_time <= 0):
+	# print("End time is before Start time. MAIN")
+	# sys.exit()
 
 
 try:
@@ -71,10 +82,10 @@ except:
 #Unhard code this **
 camera_video_files = [0]*len(cons)
 
-camera_video_files[0] = Camera_info(frame_rate = 8,start_frame = 3*8,file_name = VIDEO_PATH+"/cam_8.avi",connections = cons[0])
-camera_video_files[1] = Camera_info(frame_rate = 21,start_frame = 34*21,file_name = VIDEO_PATH+"/cam_10.avi",connections = cons[1])
-camera_video_files[2] = Camera_info(frame_rate = 30,start_frame = 30,file_name = VIDEO_PATH+"/cam_23.avi",connections = cons[2])
-camera_video_files[3] = Camera_info(frame_rate = 9,start_frame = 0,file_name = VIDEO_PATH+"/cam_30.avi",connections = cons[3])
+camera_video_files[0] = Camera_info(frame_rate = 8,start_frame = 10*8,file_name = VIDEO_PATH+"/cam_8.avi",connections = cons[0])
+camera_video_files[1] = Camera_info(frame_rate = 9,start_frame = 2*9,file_name = VIDEO_PATH+"/cam_30.avi",connections = cons[1])
+camera_video_files[2] = Camera_info(frame_rate = 30,start_frame = 3*10,file_name = VIDEO_PATH+"/cam_23.avi",connections = cons[2])
+camera_video_files[3] = Camera_info(frame_rate = 21,start_frame = 44*21,file_name = VIDEO_PATH+"/cam_10.avi",connections = cons[3])
 
 #initialize caps
 caps = []
@@ -90,15 +101,17 @@ for x in range(len(camera_video_files)):
 		print("Cannot read video file "+str(camera_video_files[x].file_name)+". MAIN")
 		sys.exit()
 
-cur_time = 0
+cur_time = start_time
 cur_cam_id = start_camera_id
 
 ok,frame = caps[start_camera_id].read()
 
 #bbox = (348, 80, 53, 124)
 bbox  = selectROI(frame,False)
+cv2.destroyAllWindows()
 
 subject = {}
+
 
 # bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
 bbox_img = frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
@@ -110,11 +123,12 @@ subject["bbox"] = bbox
 while(cur_time < end_time):
 	print("Now using camera"+str(cur_cam_id))
 	
-	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_id], bbox = bbox, data_inc = data_inc)
+	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_id], bbox = subject["bbox"], data_inc = data_inc)
 	cur_time += int(frames_elapsed/camera_video_files[cur_cam_id].frame_rate)
 	surrounding_cams = camera_video_files[cur_cam_id].connections
 	if(len(surrounding_cams) == 0):
 		print("Cam_"+str(cur_cam_id)+" does not have any surrounding cameras. MAIN")
+		print ("Amount of video analyzed: "+str(cur_time) +" seconds.")
 		break
 	begin_search_time = time.time()
 	found = False
@@ -142,7 +156,7 @@ while(cur_time < end_time):
 			for _ in range(frame_itr_interval):
 				caps[cam].read()
 		frame_itr += frame_itr_interval
-	if(cur_cam_id == 0): break #0 is last camera so finish search
+	if(cur_cam_id == 0): break #0 is last camera so finish search	
 
 et = time.time()
 

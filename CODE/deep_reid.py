@@ -34,7 +34,7 @@ from torchvision.transforms import *
 import torch
 
 def deep_reid(query_np, gal_np):
-    # model parameneters   
+    # model params  
     use_gpus = False
     root = REID_PATH + "/data"
     name = "single_test"
@@ -100,7 +100,7 @@ def t1(img): # opencv
     img = Image.fromarray(img)
     img = transforms(img)
     et = time.time()
-    print("cv time",et-st)
+    # print("cv time",et-st)
     return img
 
 def t2(img_path=None): # PIL

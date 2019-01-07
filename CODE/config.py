@@ -5,8 +5,6 @@ import time
 import cv2
 import numpy as np
 from collections import namedtuple
-
-sys.path.append(SSD_PATH)
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
@@ -29,6 +27,7 @@ SEM_DIM_Y = 1
 MAX_TRACK_FRAMES = 150
 MAX_TRACK_ERROR_FRAMES = 5
 
+sys.path.append(SSD_PATH)
 # print ("WD", WORK_DIR)
 # print ("SP", SSD_PATH)
 # print ("RP", REID_PATH)
