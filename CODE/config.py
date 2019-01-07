@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
 
+
 WORK_DIR = os.path.normpath(os.getcwd() + os.sep + os.pardir) + "/"
 SSD_PATH = WORK_DIR + "DEPENDENCIES/SSD"
 REID_PATH = WORK_DIR + "DEPENDENCIES/deeppersonreid"
@@ -28,6 +29,7 @@ MAX_TRACK_FRAMES = 150
 MAX_TRACK_ERROR_FRAMES = 5
 
 sys.path.append(SSD_PATH)
+from ssd import build_ssd
 # print ("WD", WORK_DIR)
 # print ("SP", SSD_PATH)
 # print ("RP", REID_PATH)
