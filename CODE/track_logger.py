@@ -28,34 +28,35 @@ with h5py.File('PreprocessedData.h5', 'w') as hf:
 
 #frames_elapsed, error = track_logger.track(cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
 def track(cam_id, cap, bbox, data_inc):
-    # f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
+    f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
     track_info = []
     frm_cnt = 0
     print("Progress Cam_" + str(cam_id) + ": ", end="", flush=True)
     #cam, start frame, bbox width, bbox height
-    # f.write("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
-    # f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
-    track_info.append("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
-    track_info.append("["+str(int(bbox[0]))+","+str(int(bbox[1]))+"]")
+    f.write("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
+    f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+"]")
+    # track_info.append("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
+    # track_info.append("["+str(int(bbox[0]))+","+str(int(bbox[1]))+"]")
 
     tracker_type = "CSRT"
-    if tracker_type == 'BOOSTING':
-            tracker = cv2.TrackerBoosting_create()
-    if tracker_type == 'MIL':
-        tracker = cv2.TrackerMIL_create()
-    if tracker_type == 'KCF':
-        tracker = cv2.TrackerKCF_create()
-    if tracker_type == 'TLD':
-        tracker = cv2.TrackerTLD_create()
-    if tracker_type == 'MEDIANFLOW':
-        tracker = cv2.TrackerMedianFlow_create()
-    if tracker_type == 'GOTURN':
-        tracker = cv2.TrackerGOTURN_create()
-    if tracker_type == 'MOSSE':
-        tracker = cv2.TrackerMOSSE_create()
-    if tracker_type == "CSRT":
-        tracker = cv2.TrackerCSRT_create()
-
+    # if tracker_type == 'BOOSTING':
+    #         tracker = cv2.TrackerBoosting_create()
+    # if tracker_type == 'MIL':
+    #     tracker = cv2.TrackerMIL_create()
+    # if tracker_type == 'KCF':
+    #     tracker = cv2.TrackerKCF_create()
+    # if tracker_type == 'TLD':
+    #     tracker = cv2.TrackerTLD_create()
+    # if tracker_type == 'MEDIANFLOW':
+    #     tracker = cv2.TrackerMedianFlow_create()
+    # if tracker_type == 'GOTURN':
+    #     tracker = cv2.TrackerGOTURN_create()
+    # if tracker_type == 'MOSSE':
+    #     tracker = cv2.TrackerMOSSE_create()
+    # if tracker_type == "CSRT":'
+    # st = time.time()
+    tracker = cv2.TrackerCSRT_create()
+    # print ("tracker time", time.time() - st)
     """
     BOOSTING -> ye
     MIL -> H E C K no
@@ -67,7 +68,10 @@ def track(cam_id, cap, bbox, data_inc):
     CSRT -> yeh
     """
     ok, frame = cap.read()
+    # st = time.time()
+
     ok = tracker.init(frame, tuple(bbox))
+    # print ("tracker time", time.time() - st)
     fail_detect_itrs = 0
     cycle = 0
     while True:
@@ -75,7 +79,8 @@ def track(cam_id, cap, bbox, data_inc):
         ok, frame = cap.read()
         frm_cnt += 1
         if not ok:
-            write_to_trackfile(track_info)
+            f.close()
+            # write_to_trackfile(track_info)
             #finish out progress bar
             numofthing = math.ceil((MAX_TRACK_FRAMES - frm_cnt) / data_inc)
             print("#" * numofthing, end="", flush=True)
@@ -93,11 +98,11 @@ def track(cam_id, cap, bbox, data_inc):
             cycle=0
             #record bbox pos
             if ok:
-                track_info.append([int(bbox[0]),int(bbox[1])])
-                # f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
+                # track_info.append([int(bbox[0]),int(bbox[1])])
+                f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
             else:
-                track_info.append([-1,-1])
-                # f.write("-e-\n")
+                # track_info.append([-1,-1])
+                f.write("-e-\n")
             #increment progress bar
             print("#", end="", flush=True)
         else:
@@ -105,22 +110,27 @@ def track(cam_id, cap, bbox, data_inc):
             if(not ok):
                 fail_detect_itrs+=1
                 if(fail_detect_itrs > MAX_TRACK_ERROR_FRAMES):
-                    write_to_trackfile(track_info)
+                    # write_to_trackfile(track_info)
+                    f.close()
                     print("")
                     return frm_cnt
         if(frm_cnt > MAX_TRACK_FRAMES):
-            write_to_trackfile(track_info)
+            # write_to_trackfile(track_info)
+            f.close()
             print("")
             return frm_cnt
         
 
 
 def write_to_trackfile(track_info):
+    # st = time.time()
     with open(WORK_DIR + "/METADATA/" + "trackfile.txt", "a+") as f:
         for item in track_info:
             f.write(str(item) + "\n")
             # print(str(item) + "\n")
         f.close()
+    # et = time.time()
+    # print ("write time:", et - st)
     # sys.exit()
     
 #uncomment to use as stand-alone file

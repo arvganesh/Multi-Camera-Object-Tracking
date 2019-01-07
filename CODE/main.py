@@ -13,9 +13,18 @@ Camera_info = namedtuple('Camera_info', ['frame_rate', 'start_frame', 'connectio
 
 # print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the right values")
 
+""" INIT MODELS """
+net = build_ssd('test', 300, 21) # init SSD
+net.load_weights(PATH_TO_WEIGHTS) # init SSD
+
+model = models.init_model("resnet50", num_classes=1, loss={'xent'}, use_gpu=False) # init REID
+
+""" *********** """
+
 def check_bboxes(frame):
+	# frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 	global subject
-	bboxes_ppl = init_det(frame=frame)
+	bboxes_ppl = init_det(frame=frame, net=net)
 	for bbox in bboxes_ppl:
 		bbox_img_org = frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
 		bbox_img = cv2.resize(bbox_img_org, (SEM_DIM_X,SEM_DIM_Y))
@@ -31,7 +40,7 @@ def check_bboxes(frame):
 		# 		cv2.destroyAllWindows()
 		# 		break
 		# 		# sys.exit()
-		dist = deep_reid(subject["img"], bbox_img_org)
+		dist = deep_reid(subject["img"], bbox_img_org, model)
 		# print ("Distmat", dist)
 		if(dist < DIST_THRESHOLD):
 			# print ("bbox",bbox)
@@ -158,6 +167,7 @@ while(cur_time < end_time):
 					subject["bbox"] = match_bbox
 					cur_cam_id = cam
 					found = True
+					print ("")
 					break
 		
 			for _ in range(frame_itr_interval):

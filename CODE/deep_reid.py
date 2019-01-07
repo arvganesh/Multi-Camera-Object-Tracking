@@ -1,55 +1,47 @@
 #from __future__ import #print_function
 from __future__ import division
 
+from config import *
+# from PIL import Image
+# import torch
+# import torch.nn as nn
+# import torch.backends.cudnn as cudnn
+# from torch.optim import lr_scheduler
 
-from config import WORK_DIR, REID_PATH
-import os
-import sys
-import time
-import datetime
-import os.path as osp
-import numpy as np
-import cv2
-import PIL
-from PIL import Image
-import torch
-import torch.nn as nn
-import torch.backends.cudnn as cudnn
-from torch.optim import lr_scheduler
-
-sys.path.insert(0, (WORK_DIR + 'DEPENDENCIES/deeppersonreid'))
+# sys.path.insert(0, (WORK_DIR + 'DEPENDENCIES/deeppersonreid'))
 
 # from torchreid.data_manager import ImageDataManager
-from torchreid import models
-from torchreid.losses import CrossEntropyLoss, DeepSupervision
-from torchreid.utils.iotools import save_checkpoint, check_isfile
-from torchreid.utils.avgmeter import AverageMeter
-from torchreid.utils.loggers import Logger, RankLogger
-from torchreid.utils.torchtools import count_num_param, open_all_layers, open_specified_layers
-from torchreid.utils.reidtools import visualize_ranked_results
-from torchreid.eval_metrics import evaluate
-from torchreid.optimizers import init_optimizer
+# from torchreid import models
+# from torchreid.losses import CrossEntropyLoss, DeepSupervision
+# from torchreid.utils.iotools import save_checkpoint, check_isfile
+# from torchreid.utils.avgmeter import AverageMeter
+# from torchreid.utils.loggers import Logger, RankLogger
+# from torchreid.utils.torchtools import count_num_param, open_all_layers, open_specified_layers
+# from torchreid.utils.reidtools import visualize_ranked_results
+# from torchreid.eval_metrics import evaluate
+# from torchreid.optimizers import init_optimizer
 
-from torchvision.transforms import *
-import torch
+# from torchvision.transforms import *
 
-def deep_reid(query_np, gal_np):
+
+def deep_reid(query_np, gal_np, model):
+    # print ("reid")
     # model params  
     use_gpus = False
-    root = REID_PATH + "/data"
-    name = "single_test"
-    split_id = 0
-    height = 256
-    width = 128
-    train_batch_size = 32
-    test_batch_size = 1
-    workers = 4
-    train_sampler = ''
-    num_instances = 4
-    cuhk03_labeled = False
-    cuhk03_classic_split = False
+    # root = REID_PATH + "/data"
+    # name = "single_test"
+    # split_id = 0
+    # height = 256
+    # width = 128
+    # train_batch_size = 32
+    # test_batch_size = 1
+    # workers = 4
+    # train_sampler = ''
+    # num_instances = 4
+    # cuhk03_labeled = False
+    # cuhk03_classic_split = False
 
-    torch.manual_seed(1)
+    # torch.manual_seed(1)
     path_to_weights =  REID_PATH + "/weights/resnet50_market_xent/resnet50_market_xent.pth.tar"
     save_log_dir =  REID_PATH + "/log/eval-resnet50"
 
@@ -61,8 +53,10 @@ def deep_reid(query_np, gal_np):
     # testloader_dict = dm.return_dataloaders()
 
     # Initialize Model
-    model = models.init_model("resnet50", num_classes=1, loss={'xent'}, use_gpu=use_gpus)
-
+    # st = time.time()
+    # model = models.init_model("resnet50", num_classes=1, loss={'xent'}, use_gpu=use_gpus)
+    # et = time.time()
+    # print("reid time", et-st)
     # Initialize and Load Weights
     # from functools import partial
     # import pickle
@@ -79,23 +73,23 @@ def deep_reid(query_np, gal_np):
     # Run Model
     # queryloader = testloader_dict[name]['query']
     # galleryloader = testloader_dict[name]['gallery']
-    distmat = test(model, query_np, gal_np, use_gpus) 
+    # distmat = test(model, query_np, gal_np, use_gpus) 
     #visualize_ranked_results(distmat, dm.return_testdataset_by_name(name), save_log_dir + "/ranked_results/yeet", 1)
     #print ("DIST:", distmat)
     #gallery = dm.return_testdataset_by_name(name)[1]
-    return distmat
+    return test(model, query_np, gal_np, use_gpus) 
 
 def t1(img): # opencv
     st = time.time()
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     imagenet_mean = [0.485, 0.456, 0.406]
     imagenet_std = [0.229, 0.224, 0.225]
-    normalize = Normalize(mean=imagenet_mean, std=imagenet_std)
+    normalize = torch_trans.Normalize(mean=imagenet_mean, std=imagenet_std)
     transforms = []
-    transforms += [Resize((256, 128))]
-    transforms += [ToTensor()]
+    transforms += [torch_trans.Resize((256, 128))]
+    transforms += [torch_trans.ToTensor()]
     transforms += [normalize]
-    transforms = Compose(transforms)
+    transforms = torch_trans.Compose(transforms)
     # img = cv2.resize(img, (128, 256), interpolation=cv2.INTER_NEAREST)
     img = Image.fromarray(img)
     img = transforms(img)
@@ -132,7 +126,7 @@ def t2(img_path=None): # PIL
 #     return torch.eq(a, b).all()
 
 def test(model, query_np, gal_np, use_gpu, ranks=[1, 5, 15, 20], return_distmat=True): # !!!!!!
-    batch_time = AverageMeter()
+    # batch_time = AverageMeter()
     
     model.eval()
     # imgs -> queryloader / galleryloader -> testloader_dict[q/g] -> dm.return_dataloaders() -> imagedatamanager (line 57) -> transform function -> img dataset thingy -> dataset loaders ->  somehow transfroms img from img path -> transformed image. 

@@ -9,6 +9,9 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
+from PIL import Image
+import torchvision.transforms as torch_trans
+
 
 
 WORK_DIR = os.path.normpath(os.getcwd() + os.sep + os.pardir) + "/"
@@ -29,7 +32,11 @@ MAX_TRACK_FRAMES = 150
 MAX_TRACK_ERROR_FRAMES = 5
 
 sys.path.append(SSD_PATH)
+sys.path.insert(0, (WORK_DIR + 'DEPENDENCIES/deeppersonreid'))
+
 from ssd import build_ssd
+from torchreid import models
+
 # print ("WD", WORK_DIR)
 # print ("SP", SSD_PATH)
 # print ("RP", REID_PATH)
