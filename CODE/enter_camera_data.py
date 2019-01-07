@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 import sys
+from config import WORK_DIR
 #from bitarray import bitarray
 
 cams = []
@@ -11,7 +12,7 @@ max_dist = 10
 selected_cam = None
 placing = True
 invalidInput = True
-floorplan_file = "flrpln.png"
+floorplan_file = WORK_DIR + "METADATA/" + "flrpln.png"
 org_img = cv2.imread(floorplan_file)
 cam_img = org_img.copy()
 conn_img = cam_img.copy()
@@ -143,11 +144,11 @@ while(True):
 	k = cv2.waitKey(1) & 0xff
 	if k == 27:
 		if(len(cams)>0):
-			f_cams = open("camera_placement.txt","w")
+			f_cams = open(WORK_DIR + "METADATA/" + "camera_placement.txt","w")
 			for x in range(len(cams)):
 				f_cams.write(str(cams[x])+"\n")
 			f_cams.close()
-			f_cons = open("connection_info.txt","w")
+			f_cons = open(WORK_DIR + "METADATA/" + "connection_info.txt","w")
 			for x in range(len(cons)):
 				for j in range(len(cons[x])):
 					f_cons.write(str(int(cons[x][j])))

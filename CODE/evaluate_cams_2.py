@@ -33,7 +33,7 @@ from torchreid.optimizers import init_optimizer
 from torchvision.transforms import *
 import torch
 
-def deep_reid(query_np, gal_np):
+def deep_reid(query_np, gal_np): # subject, global
     # model parameneters   
     use_gpus = False
     root = REID_PATH + "/data"
@@ -57,11 +57,11 @@ def deep_reid(query_np, gal_np):
     sys.stdout = Logger(osp.join(save_log_dir, log_name))
 
     # Initialize Data
-    dm = ImageDataManager(use_gpus, [name], [name], root, split_id, height, width, train_batch_size, test_batch_size, workers, train_sampler, num_instances, cuhk03_labeled, cuhk03_classic_split)
-    testloader_dict = dm.return_dataloaders()
+    # dm = ImageDataManager(use_gpus, [name], [name], root, split_id, height, width, train_batch_size, test_batch_size, workers, train_sampler, num_instances, cuhk03_labeled, cuhk03_classic_split)
+    # testloader_dict = dm.return_dataloaders()
 
     # Initialize Model
-    model = models.init_model("resnet50", num_classes=dm.num_train_pids, loss={'xent'}, use_gpu=use_gpus)
+    model = models.init_model("resnet50", num_classes=1, loss={'xent'}, use_gpu=use_gpus)
 
     # Initialize and Load Weights
     # from functools import partial
@@ -77,8 +77,8 @@ def deep_reid(query_np, gal_np):
     model.load_state_dict(model_dict)
 
     # Run Model
-    queryloader = testloader_dict[name]['query']
-    galleryloader = testloader_dict[name]['gallery']
+#    queryloader = testloader_dict[name]['query']
+#     galleryloader = testloader_dict[name]['gallery'] 
     distmat = test(model, query_np, gal_np, use_gpus) 
     #visualize_ranked_results(distmat, dm.return_testdataset_by_name(name), save_log_dir + "/ranked_results/yeet", 1)
     #print ("DIST:", distmat)
@@ -103,25 +103,25 @@ def t1(img): # opencv
     print("cv time",et-st)
     return img
 
-# def t2(img_path=None): # PIL
-#     st = time.time()
-#     if img_path is not None:
-#         img = Image.open(img_path)
-#         imagenet_mean = [0.485, 0.456, 0.406]
-#         imagenet_std = [0.229, 0.224, 0.225]
-#         normalize = Normalize(mean=imagenet_mean, std=imagenet_std)
+def t2(img_path=None): # PIL
+    st = time.time()
+    if img_path is not None:
+        img = Image.open(img_path)
+        imagenet_mean = [0.485, 0.456, 0.406]
+        imagenet_std = [0.229, 0.224, 0.225]
+        normalize = Normalize(mean=imagenet_mean, std=imagenet_std)
         
-#         transforms = []
-#         transforms += [Resize((256, 128))]
-#         transforms += [ToTensor()]
-#         transforms += [normalize]
+        transforms = []
+        transforms += [Resize((256, 128))]
+        transforms += [ToTensor()]
+        transforms += [normalize]
 
-#         transforms = Compose(transforms)
+        transforms = Compose(transforms)
 
-#         img = transforms(img)
-#         et = time.time()
-#         print("PIL time",et-st)
-#         return img
+        img = transforms(img)
+        et = time.time()
+        print("PIL time",et-st)
+        return img
 
 # def main_test():
 #     img = cv2.imread("naturo-monkey-selfie.jpg", cv2.IMREAD_COLOR)
@@ -131,7 +131,7 @@ def t1(img): # opencv
 #     print ("PIL", b)
 #     return torch.eq(a, b).all()
 
-def test(model, query_np, gal_np, use_gpu, ranks=[1, 5, 15, 20], return_distmat=True, transform=t1): # !!!!!!
+def test(model, query_np, gal_np, use_gpu, ranks=[1, 5, 15, 20], return_distmat=True, transform=t2): # !!!!!!
     batch_time = AverageMeter()
     
     model.eval()
@@ -139,7 +139,7 @@ def test(model, query_np, gal_np, use_gpu, ranks=[1, 5, 15, 20], return_distmat=
     # we want to stop image writing from (numpy array -> )
     with torch.no_grad():
         qf = []
-        query_np = transform(query_np)
+        query_np = t2("hi.jpg")
         features = model(query_np)
         features = features.data.cpu()
         qf.append(features)

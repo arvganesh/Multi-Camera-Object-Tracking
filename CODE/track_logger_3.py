@@ -28,12 +28,12 @@ with h5py.File('PreprocessedData.h5', 'w') as hf:
 
 #frames_elapsed, error = track_logger.track(cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
 def track(cam_id, cap, bbox, data_inc):
-    #f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
-    track_info = []
+    f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
+    # track_info = []
     frm_cnt = 0
     print("Progress Cam_" + str(cam_id) + ": ", end="", flush=True)
     #cam, start frame, bbox width, bbox height
-    f.write("\n"+"!("+str(cam_id)+","+str(cv2.getCaptureProperty(cap, 1))+","+str(bbox[2])+","+str(bbox[3])+")\n")
+    f.write("\n"+"!("+str(cam_id)+","+str(int(cap.get(1)))+","+str(bbox[2])+","+str(bbox[3])+")\n")
     f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
 
     tracker_type = "CSRT"
@@ -64,7 +64,8 @@ def track(cam_id, cap, bbox, data_inc):
     MOSSE -> see above and TLD
     CSRT -> yeh
     """
-    ok = tracker.init(frame,tuple(bbox))
+    ok, frame = cap.read()
+    ok = tracker.init(frame, tuple(bbox))
     fail_detect_itrs = 0
     cycle = 0
     while True:
@@ -77,9 +78,9 @@ def track(cam_id, cap, bbox, data_inc):
             numofthing = math.ceil((MAX_TRACK_FRAMES - frm_cnt) / data_inc)
             print("#" * numofthing, end="", flush=True)
             print("")
-            with h5py.File((WORK_DIR + "/METADATA/" + "trackfile.hdf5"), 'w') as f:
-                f.create_dataset("tracklog", data=track_info)
-                f.close()
+            # with h5py.File((WORK_DIR + "/METADATA/" + "trackfile.hdf5"), 'w') as f:
+            #     f.create_dataset("tracklog", data=track_info)
+            #     f.close()
             return frm_cnt # goes to next cams
 
         # Update tracker
@@ -90,11 +91,11 @@ def track(cam_id, cap, bbox, data_inc):
             cycle=0
             #record bbox pos
             if ok:
-                track_info.append([int(bbox[0]),int(bbox[1])])
-                #f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
+                # track_info.append([int(bbox[0]),int(bbox[1])])
+                f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
             else:
-                track_info.appnd([-1,-1])
-                #f.write("-e-\n")
+                # track_info.appnd([-1,-1])
+                f.write("-e-\n")
             #increment progress bar
             print("#", end="", flush=True)
         else:

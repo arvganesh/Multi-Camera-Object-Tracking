@@ -2,36 +2,47 @@ import time
 import sys
 import cv2
 from cv2 import selectROI
-from config import SEM_DIM_X, SEM_DIM_Y, REID_DIM_X, REID_DIM_Y, DIST_THRESHOLD, REID_NUM_SKIP_FRAMES, MAX_REID_TIME, TRACKFILE_PATH
+from config import *
 from collections import namedtuple
+from evaluate_cams_3 import deep_reid
+import track_logger_3 as track_logger
+from initial_detect import init_det
 
 Camera_info = namedtuple('Camera_info', ['frame_rate', 'start_frame', 'connections', 'file_name'])
 
 print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the right values")
 
-def check_bboxes(bboxes,frame):
+def check_bboxes(frame):
+	global subject
 	bboxes_ppl = init_det(frame=frame)
 	for bbox in bboxes_ppl:
 		bbox_img_org = frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
 		bbox_img = cv2.resize(bbox_img_org, (SEM_DIM_X,SEM_DIM_Y))
-		attrs = semantic_attribute_det(bbox_img)
-		if (attrs == subject["attr_id"]):
-			#bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
-			dist = deep_reid(bbox_img_org)
-			if(dist < DIST_THRESHOLD):
-				return bbox
+		# attrs = semantic_attribute_det(bbox_img)
+		# if (attrs == subject["attr_id"]):
+		# 	#bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
+		dist = deep_reid(subject["img"], bbox_img_org)
+		print ("Distmat", dist)
+		if(dist < DIST_THRESHOLD):
+			return bbox
 	return None
 				
 #clear trackfile **chnage to hdf5 if necisary
-f = open("trackfile.txt", "w")
+f = open(WORK_DIR + "METADATA/" + "trackfile.txt", "w")
 f.close()
 
 #get inputs
 st = time.time()
-start_time = int(input("Start Time: "))
-end_time = int(input("End Time: "))
-data_inc = int(input("Data increment: "))
-start_camera_id = int(input("Start Camera ID: "))
+# start_time = int(input("Start Time: "))
+# end_time = int(input("End Time: "))
+# data_inc = int(input("Data increment: "))
+# start_camera_id = int(input("Start Camera ID: "))
+
+start_time = 3
+end_time = 40
+data_inc = 2
+start_camera_id = 0
+
 
 #set time diff to check against
 end_time -= start_time
@@ -41,7 +52,7 @@ if(end_time <= 0):
 
 
 try:
-	f_cons = open("connection_info.txt","r")
+	f_cons = open(WORK_DIR + "METADATA/" + "connection_info.txt","r")
 	f_cons.seek(0)
 	cons = []
 	itr = 0
@@ -72,7 +83,7 @@ for x in range(len(camera_video_files)):
 	if(not caps[x].isOpened()):
 		print("Error opening video. MAIN")
 		sys.exit()
-	caps[x].set(cv2.CAP_PROPS_FPS, camera_video_files[x].frame_rate)
+	caps[x].set(5, camera_video_files[x].frame_rate)
 	caps[x].set(1,max(camera_video_files[x].start_frame-1,0))
 	ok,frame = caps[x].read()
 	if not ok:
@@ -82,26 +93,26 @@ for x in range(len(camera_video_files)):
 cur_time = 0
 cur_cam_id = start_camera_id
 
-ok,frame = caps[start_camera_index].read()
+ok,frame = caps[start_camera_id].read()
 
 #bbox = (348, 80, 53, 124)
 bbox  = selectROI(frame,False)
 
 subject = {}
 
-bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
-
-print("bbox_img type",type(bbox_img))
+# bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
+bbox_img = frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
+# print("bbox_img type",type(bbox_img))
 subject["img"] = bbox_img
 subject["bbox"] = bbox
-subject["attr_id"] = semantic_attribute_det(bbox_img)
+# subject["attr_id"] = semantic_attribute_det(bbox_img)
 
 while(cur_time < end_time):
 	print("Now using camera"+str(cur_cam_id))
 	
-	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
-	cur_time += int(frames_elapsed/camera_video_files[cur_cam_indx].frame_rate)
-	surrounding_cams = camera_video_files[cur_cam_indx].connections
+	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_id], bbox = bbox, data_inc = data_inc)
+	cur_time += int(frames_elapsed/camera_video_files[cur_cam_id].frame_rate)
+	surrounding_cams = camera_video_files[cur_cam_id].connections
 	if(len(surrounding_cams) == 0):
 		print("Cam_"+str(cur_cam_id)+" does not have any surrounding cameras. MAIN")
 		break
@@ -121,7 +132,7 @@ while(cur_time < end_time):
 				print("Not ok frame. MAIN")
 			else:
 				print(".",end="",flush=True)
-				match_bbox = check_bboxes(bboxes,frame)
+				match_bbox = check_bboxes(frame)
 				if(match_bbox != None):
 					subject["bbox"] = match_bbox
 					cur_cam_id = cam

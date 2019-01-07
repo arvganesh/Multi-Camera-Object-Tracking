@@ -6,6 +6,7 @@ import matplotlib.image as mpimg
 import sys
 import math
 import time
+from config import *
 #cam_files as array of all video files from cameras
 #data_frame_increment is number of frames skipped between each data point
 def index_by_ID(a,ID,func):
@@ -18,7 +19,7 @@ def splicer(cam_files,log_file, frame_rate, data_frame_increment):
 	caps = []
 	for x in range(len(cam_files)):
 		# print ("camfiles:", x)
-		caps.append(cv2.VideoCapture(cam_files[x][1]))
+		caps.append(cv2.VideoCapture(VIDEO_PATH + "/" + cam_files[x][1]))
 		caps[len(caps)-1].set(cv2.CAP_PROP_FPS, cam_files[x][2])
 		#caps[x] = (cv2.VideoCapture(cam_files[x]))
 		#caps[x].set(cv2.CAP_PROP_FPS, frame_rate)
@@ -59,4 +60,4 @@ def splicer(cam_files,log_file, frame_rate, data_frame_increment):
 	f.close()
 
 #uncomment to use as stand-alone file	
-#splicer([[0,"cam_8.avi",8],[3,"cam_30.avi",9],[1,"cam_23.avi",30],[2,"cam_10.avi",21]],"trackfile.txt", 9, 3)
+splicer([[0,"cam_8.avi",8],[1,"cam_30.avi",9],[2,"cam_23.avi",30],[3,"cam_10.avi",21]],WORK_DIR + "METADATA/" + "trackfile.txt", 9, 3)
