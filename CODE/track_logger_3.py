@@ -8,9 +8,28 @@ import sys
 import math
 import time
 
+'''
+import h5py
+with h5py.File('random.hdf5', 'w') as f:
+    dset = f.create_dataset("default", data=arr)
+    dset = f.create_dataset("yeet", data=arr[:5])
+    f.close()
+
+with h5py.File('random.hdf5', 'r') as f:
+    deff = f['default']
+    yeet = f['yeet']
+    print(deff, yeet)
+    f.close()
+with h5py.File('PreprocessedData.h5', 'w') as hf:
+    hf.create_dataset("X_train", data=X_train_data, maxshape=(None, 512, 512, 9))
+
+
+'''
+
 #frames_elapsed, error = track_logger.track(cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
 def track(cam_id, cap, bbox, data_inc):
-    f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
+    #f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
+    track_info = []
     frm_cnt = 0
     print("Progress Cam_" + str(cam_id) + ": ", end="", flush=True)
     #cam, start frame, bbox width, bbox height
@@ -58,6 +77,9 @@ def track(cam_id, cap, bbox, data_inc):
             numofthing = math.ceil((MAX_TRACK_FRAMES - frm_cnt) / data_inc)
             print("#" * numofthing, end="", flush=True)
             print("")
+            with h5py.File((WORK_DIR + "/METADATA/" + "trackfile.hdf5"), 'w') as f:
+                f.create_dataset("tracklog", data=track_info)
+                f.close()
             return frm_cnt # goes to next cams
 
         # Update tracker
@@ -68,9 +90,11 @@ def track(cam_id, cap, bbox, data_inc):
             cycle=0
             #record bbox pos
             if ok:
-                f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
+                track_info.append([int(bbox[0]),int(bbox[1])])
+                #f.write("("+str(int(bbox[0]))+","+str(int(bbox[1]))+")\n")
             else:
-                f.write("-e-\n")
+                track_info.appnd([-1,-1])
+                #f.write("-e-\n")
             #increment progress bar
             print("#", end="", flush=True)
         else:

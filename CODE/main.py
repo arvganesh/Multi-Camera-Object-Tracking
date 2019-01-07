@@ -1,6 +1,7 @@
 import time
 import sys
 import cv2
+from cv2 import selectROI
 from config import DIM_X, DIM_Y, DIST_THRESHOLD, REID_NUM_SKIP_FRAMES, MAX_REID_TIME, TRACKFILE_PATH
 from collections import namedtuple
 
@@ -58,10 +59,10 @@ except:
 #Unhard code this **
 camera_video_files = [0]*len(cons)
 
-camera_video_files[0] = Camera_info(frame_rate = 8,start_frame = 3*8,file_name = "cam_8.avi",connections = cons[0])
-camera_video_files[1] = Camera_info(frame_rate = 21,start_frame = 34*21,file_name = "cam_10.avi",connections = cons[1])
-camera_video_files[2] = Camera_info(frame_rate = 30,start_frame = 30,file_name = "cam_23.avi",connections = cons[2])
-camera_video_files[3] = Camera_info(frame_rate = 9,start_frame = 0,file_name = "cam_30.avi",connections = cons[3])
+camera_video_files[0] = Camera_info(frame_rate = 8,start_frame = 3*8,file_name = VIDEO_PATH+"/cam_8.avi",connections = cons[0])
+camera_video_files[1] = Camera_info(frame_rate = 21,start_frame = 34*21,file_name = VIDEO_PATH+"/cam_10.avi",connections = cons[1])
+camera_video_files[2] = Camera_info(frame_rate = 30,start_frame = 30,file_name = VIDEO_PATH+"/cam_23.avi",connections = cons[2])
+camera_video_files[3] = Camera_info(frame_rate = 9,start_frame = 0,file_name = VIDEO_PATH+"/cam_30.avi",connections = cons[3])
 
 #initialize caps
 caps = []
@@ -87,6 +88,7 @@ bbox  = selectROI(frame,False)
 
 subject = {}
 bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (DIM_X,DIM_Y))
+print("bbox_img type",type(bbox_img))
 subject["img"] = bbox_img
 subject["bbox"] = bbox
 subject["attr_id"] = semantic_attribute_det(bbox_img)
@@ -144,6 +146,6 @@ while(invalid_input):
 		splicer.splicer(camera_video_files,TRACKFILE_PATH,data_inc)
 		print("Done generating video. Closing Program.  MAIN")
 		invalid_input = False
-	elif(inpt == "n")
+	elif(inpt == "n"):
 		print("Ok. Closing Program")
 		invalid_input = False
