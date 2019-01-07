@@ -120,10 +120,16 @@ subject["img"] = bbox_img
 subject["bbox"] = bbox
 # subject["attr_id"] = semantic_attribute_det(bbox_img)
 
+TOTAL_TRACKLOG_TIME = 0
+TOTAL_REID_TIME = 0
+
 while(cur_time < end_time):
 	print("Now using camera"+str(cur_cam_id))
-	
+	stt = time.time()
 	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_id], bbox = subject["bbox"], data_inc = data_inc)
+	ett = time.time()
+	TOTAL_TRACKLOG_TIME += ett-stt
+
 	cur_time += int(frames_elapsed/camera_video_files[cur_cam_id].frame_rate)
 	surrounding_cams = camera_video_files[cur_cam_id].connections
 	if(len(surrounding_cams) == 0):
@@ -135,6 +141,7 @@ while(cur_time < end_time):
 	frame_itr = 0
 	frame_itr_interval = REID_NUM_SKIP_FRAMES
 	print("Calculating",end="",flush=True)
+	stt = time.time()
 	while(not found):
 		if(time.time()-begin_search_time > MAX_REID_TIME):
 			print("Could not RE-ID subject within "+str(MAX_REID_TIME)+" seconds. Ending Program.  MAIN")
@@ -156,10 +163,13 @@ while(cur_time < end_time):
 			for _ in range(frame_itr_interval):
 				caps[cam].read()
 		frame_itr += frame_itr_interval
+	ett = time.time()
+	TOTAL_REID_TIME += ett-stt
 	if(cur_cam_id == 0): break #0 is last camera so finish search	
 
 et = time.time()
-
+print("TOTAL_TRACKLOG_TIME",TOTAL_TRACKLOG_TIME)
+print("TOTAL_REID_TIME",TOTAL_REID_TIME)
 print("\n")
 print("  **************** Summary ****************")
 print("      Total Time: {}       ".format(str(et-st)))
