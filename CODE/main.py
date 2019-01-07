@@ -12,11 +12,12 @@ print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the rig
 def check_bboxes(bboxes,frame):
 	bboxes_ppl = init_det(frame=frame)
 	for bbox in bboxes_ppl:
-		bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (SEM_DIM_X,SEM_DIM_Y))
+		bbox_img_org = frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]]
+		bbox_img = cv2.resize(bbox_img_org, (SEM_DIM_X,SEM_DIM_Y))
 		attrs = semantic_attribute_det(bbox_img)
 		if (attrs == subject["attr_id"]):
-			bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
-			dist = deep_reid(bbox_img)
+			#bbox_img = cv2.resize(frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[2]], (REID_DIM_X,REID_DIM_Y))
+			dist = deep_reid(bbox_img_org)
 			if(dist < DIST_THRESHOLD):
 				return bbox
 	return None
@@ -30,7 +31,6 @@ st = time.time()
 start_time = int(input("Start Time: "))
 end_time = int(input("End Time: "))
 data_inc = int(input("Data increment: "))
-dist_thresh = 260
 start_camera_id = int(input("Start Camera ID: "))
 
 #set time diff to check against
