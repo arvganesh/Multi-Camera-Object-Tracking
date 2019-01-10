@@ -17,7 +17,7 @@ class Analyzer:
 				print("Time Analyzer timer ("+str(timer_name)+" has not been started.")
 		else:
 			print("Time Analyzer timer ("+str(timer_name)+") does not exist.")
-	def show_timer(self,timer_name,verbose):
+	def show_timer(self,timer_name,verbose=False):
 		if(timer_name in self.info):
 			ttl = sum(self.info[timer_name][1])
 			avg = ttl/float(len(self.info[timer_name][1]))
@@ -28,7 +28,7 @@ class Analyzer:
 				print("   Recorded Values: "+str(self.info[timer_name][1]))
 		else:
 			print("Time Analyzer timer ("+str(timer_name)+") does not exist.")
-	def show_times(self,verbose):
+	def show_times(self,verbose=False):
 		for key, value in self.info.items():
 			ttl = sum(value[1])
 			avg = ttl/float(len(value[1]))

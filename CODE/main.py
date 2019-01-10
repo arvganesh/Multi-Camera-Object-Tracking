@@ -8,7 +8,7 @@ from deep_reid import deep_reid
 import track_logger as track_logger
 from initial_detect import init_det
 import splicer
-import time_analyze
+from time_analyze import Analyzer
 Camera_info = namedtuple('Camera_info', ['frame_rate', 'start_frame', 'connections', 'file_name'])
 
 # print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the right values")
