@@ -8,10 +8,12 @@ from deep_reid import deep_reid
 import track_logger as track_logger
 from initial_detect import init_det
 import splicer
-
+import time_analyze
 Camera_info = namedtuple('Camera_info', ['frame_rate', 'start_frame', 'connections', 'file_name'])
 
 # print("Fix DIM_X and DIM_Y in config. I put place holders but they arent the right values")
+
+t = Analyzer()
 
 """ INIT MODELS """
 net = build_ssd('test', 300, 21) # init SSD
@@ -135,7 +137,7 @@ TOTAL_REID_TIME = 0
 while(cur_time < end_time):
 	print("Now using camera"+str(cur_cam_id))
 	stt = time.time()
-	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_id], bbox = subject["bbox"], data_inc = data_inc)
+	frames_elapsed = track_logger.track(cam_id = cur_cam_id, cap = caps[cur_cam_id], bbox = subject["bbox"], data_inc = data_inc, time_analyzer = t)
 	ett = time.time()
 	TOTAL_TRACKLOG_TIME += ett-stt
 
@@ -186,6 +188,8 @@ print("      Total Time: {}       ".format(str(et-st)))
 print("            Algorithm Completed           ")
 print("  *****************************************")
 print("\n")
+
+t.show_times()
 
 invalid_input = True
 while(invalid_input):

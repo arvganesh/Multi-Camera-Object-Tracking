@@ -27,7 +27,7 @@ with h5py.File('PreprocessedData.h5', 'w') as hf:
 '''
 
 #frames_elapsed, error = track_logger.track(cap = caps[cur_cam_indx], bbox = bbox, data_inc = data_inc)
-def track(cam_id, cap, bbox, data_inc):
+def track(cam_id, cap, bbox, data_inc, time_analyzer):
     f = open((WORK_DIR + "/METADATA/" + "trackfile.txt"),"a+")
     track_info = []
     frm_cnt = 0
@@ -76,7 +76,9 @@ def track(cam_id, cap, bbox, data_inc):
     cycle = 0
     while True:
         # Read a new frame
+        time_analyzer.start("reading")
         ok, frame = cap.read()
+        time_analyzer.stop("reading")
         frm_cnt += 1
         if not ok:
             f.close()
@@ -91,7 +93,9 @@ def track(cam_id, cap, bbox, data_inc):
             return frm_cnt # goes to next cams
 
         # Update tracker
+        time_analyzer.start("update")
         ok, bbox = tracker.update(frame)
+        time_analyzer.stop("update")
         
         #only record at data_inc
         if(cycle==data_inc-1):
