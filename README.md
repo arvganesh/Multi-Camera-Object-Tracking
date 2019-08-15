@@ -1,7 +1,9 @@
 # Multi-Camera-Object-Tracking
 Track an object across a CCTV Network with non-overlapping camera views.
 
-[DEMO](https://youtu.be/8q7Zv_42oH0)
+<iframe src="https://giphy.com/embed/RgyqvpsJEbegHCVb08" width="480" height="360" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/RgyqvpsJEbegHCVb08">via GIPHY</a></p>
+
+[FULL DEMO](https://youtu.be/8q7Zv_42oH0)
 
 ### Table of Contents
 - <a href='#Dependencies'>Dependencies</a>
