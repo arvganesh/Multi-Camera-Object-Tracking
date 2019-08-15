@@ -1,4 +1,4 @@
-# Dependencies / Libraries required
+# Dependencies
 
 
  In this folder, clone into:	Within this folder, clone into:
