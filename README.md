@@ -1,8 +1,7 @@
 # Multi-Camera-Object-Tracking
 Track an object across a non-overlapping CCTV Network.
 
-[In Progress]
-
+DEMO(https://youtu.be/8q7Zv_42oH0)
 
 ## Dependencies
 + Directions in /DEPENDENCIES folder
