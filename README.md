@@ -1,7 +1,7 @@
 # Multi-Camera-Object-Tracking
 Track an object across a CCTV Network with non-overlapping camera views.
 
-![ani-gif](https://media.giphy.com/media/RgyqvpsJEbegHCVb08/200w_d.gif)
+![ani-gif](https://media.giphy.com/media/RgyqvpsJEbegHCVb08/giphy.gif)
 
 *Chopiness is due to a low framerate camera being used to record CCTV Footage*
 
