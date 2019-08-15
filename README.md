@@ -23,3 +23,8 @@ The algorithm outputs a video of the tracking subject travelling through the net
 ![cam2](https://user-images.githubusercontent.com/21336191/63117797-1dd96f00-bf62-11e9-8d67-54776a8296dc.jpg)
 
 ![cam3](https://user-images.githubusercontent.com/21336191/63117806-22058c80-bf62-11e9-81f1-bc644139a95f.jpg)
+
+## Inputting information about the Camera Network
+The algorithm relies on a user-inputted "map" of the camera network (showing relative location and camera adjacency) entered here: 
+
+<img width="800" alt="camera-gui" src="https://user-images.githubusercontent.com/21336191/63117697-ed91d080-bf61-11e9-9676-1dfcf11e6dbf.png">
