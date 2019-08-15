@@ -5,8 +5,9 @@ Track an object across a CCTV Network with non-overlapping camera views.
 
 ### Table of Contents
 - <a href='#Dependencies'>Dependencies</a>
-- <a href='#How it works'>Thought Process</a>
+- <a href='#How-it-works'>Thought Process</a>
 - <a href='#Algorithm-Flowchart'>Flowchart</a>
+- <a href='#Output'>Output</a>
 
 &nbsp;
 &nbsp;
