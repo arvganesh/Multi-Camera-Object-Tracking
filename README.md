@@ -18,7 +18,7 @@ When a tracking subject is selected by the user, they are "remembered" by the al
 ![algorithm-flowchart](https://user-images.githubusercontent.com/21336191/63116742-faadc000-bf5f-11e9-8372-994f0d94395d.jpg)
 
 ## Output
-The algorithm outputs a video of the tracking subject travelling through the network with a bounding box around them. Below, are still images from the output video produced on our sample footage.
+The algorithm outputs a video of the tracking subject travelling through the network with a bounding box around them. Below, are still frames from the output video produced on our sample footage.
 
 ![cam2](https://user-images.githubusercontent.com/21336191/63117797-1dd96f00-bf62-11e9-8d67-54776a8296dc.jpg)
 
