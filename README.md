@@ -3,7 +3,7 @@ Track an object across a CCTV Network with non-overlapping camera views.
 
 ![ani-gif](https://media.giphy.com/media/RgyqvpsJEbegHCVb08/200w_d.gif)
 
-/*Chopiness is due to a low framerate camera being used to record CCTV Footage*/ 
+*Chopiness is due to a low framerate camera being used to record CCTV Footage*
 
 [FULL DEMO](https://youtu.be/8q7Zv_42oH0)
 
