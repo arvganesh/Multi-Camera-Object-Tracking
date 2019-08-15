@@ -1,5 +1,5 @@
 # Multi-Camera-Object-Tracking
-Track an object across a non-overlapping CCTV Network.
+Track an object across a CCTV Network with non-overlapping camera views.
 
 [DEMO](https://youtu.be/8q7Zv_42oH0)
 
