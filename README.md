@@ -8,6 +8,7 @@ Track an object across a CCTV Network with non-overlapping camera views.
 - <a href='#How-it-works'>Thought Process</a>
 - <a href='#Algorithm-Flowchart'>Flowchart</a>
 - <a href='#Output'>Output</a>
+- <a href='#Authors'>Authors</a>
 
 &nbsp;
 &nbsp;
@@ -41,3 +42,8 @@ The algorithm relies on a user-inputted "map" of the camera network (showing rel
 <img width="800" alt="camera-gui" src="https://user-images.githubusercontent.com/21336191/63117697-ed91d080-bf61-11e9-9676-1dfcf11e6dbf.png">
 
 The user can "place" cameras in placement mode, then indicate the adjacency through the "connections" in connection mode.
+
+## Authors
+
+- @arvganesh
+- @colHur
