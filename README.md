@@ -45,5 +45,5 @@ The user can "place" cameras in placement mode, then indicate the adjacency thro
 
 ## Authors
 
-- @arvganesh
-- @colHur
+- [Arvind Ganesh](github.com/arvganesh)
+- [Colin Hurley](github.com/colHur)
