@@ -28,7 +28,7 @@ Track an object across a CCTV Network with non-overlapping camera views.
 
 ## How it works
 
-When a tracking subject is selected by the user, they are "remembered" by the algorithm. While in the view of a single camera, the subject is tracked using a general object tracking algorithm from OpenCV. When the subject has left the view of a given camera, the surrounding cameras are searched for the tracking subject using the user's initial selection as a reference. Once the algorithm identifies the tracking subject in new camera, single camera tracking resumes. The algorithm outputs a 
+When a tracking subject is selected by the user, they are "remembered" by the algorithm. While in the view of a single camera, the subject is tracked using a general object tracking algorithm from OpenCV. When the subject has left the view of a given camera, the surrounding cameras are searched for the tracking subject using the user's initial selection as a reference. Once the algorithm identifies the tracking subject in new camera, single camera tracking resumes.
 
 ## Algorithm Flowchart
 ![algorithm-flowchart](https://user-images.githubusercontent.com/21336191/63116742-faadc000-bf5f-11e9-8372-994f0d94395d.jpg)
