@@ -1,4 +1,4 @@
-# CCTVTracker: Deep-learning based object tracker for a CCTV Network
+# CCTVTracker
 Track an object across a CCTV Network with non-overlapping camera views.
 
 ![ani-gif](https://media.giphy.com/media/RgyqvpsJEbegHCVb08/giphy.gif)
